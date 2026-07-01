@@ -1,11 +1,32 @@
 # MyAGV Nav2 + PRM Path Planning
 
+> Part of [FishFarm Robotics](https://github.com/FishFarm-robotics) — SRCP (Semantic Robotics Control Platform)
+>
+> **Contributor**: 백동민
+
 ROS 2 navigation package for the [MyAGV](https://www.elephantrobotics.com/en/myagv-en/)
 mobile robot, built on **Nav2**, with custom offline global planners on top of a
 SLAM-built occupancy grid.
 
 The map (`map/map.pgm` + `map.yaml`) and the reference point cloud were produced
-from a fish-farm environment scan.
+from a fish-farm environment scan using MASt3R-SLAM.
+
+## Role in SRCP
+
+This module handles the last mile of the "natural language → robot movement"
+pipeline:
+
+```
+ULIP (target object coords) → PRM path planning → Nav2 → myAGV movement
+```
+
+1. **3D→2D conversion**: Point cloud coordinates are transformed to ROS coordinates,
+   downsampled into a 2D occupancy grid map with safety margins reflecting the
+   myAGV's physical dimensions.
+2. **PRM path planning**: 4000 nodes uniformly sampled in safe zones → KDTree-based
+   KNN neighbor search → LineFree collision check → Dijkstra shortest path.
+3. **Waypoint execution**: Path coordinates converted to world coordinates → Parser
+   Node sends Nav2 Goal Locations → Navigation Stack executes movement.
 
 ## Contents
 
