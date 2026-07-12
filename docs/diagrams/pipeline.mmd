@@ -1,0 +1,23 @@
+flowchart LR
+  subgraph CMD["명령 이해 (팀)"]
+    U["자연어 명령<br/>&quot;어항 앞으로 가줘&quot;"] --> G["Gemini<br/>명령 해석"]
+    G --> UL["ULIP<br/>대상 객체 매칭"]
+  end
+
+  subgraph MAP["맵 생성 (담당·공동)"]
+    S["MASt3R-SLAM<br/>3D 포인트클라우드"] --> F["RANSAC 바닥 정렬<br/>회전행렬 → y=0"]
+    F --> O["2D 점유격자<br/>map.pgm + yaml"]
+  end
+
+  subgraph PRM["PRM 경로 계획 — 이 저장소 (담당)"]
+    SZ["safe zone<br/>dist &gt; 0.8×0.25m"] --> SA["4000노드<br/>균일 샘플링"]
+    SA --> KD["KDTree k=30<br/>+ 직선 충돌검사"]
+    KD --> DJ["Dijkstra<br/>최단 경로"]
+  end
+
+  UL -- "목표 3D 좌표" --> SZ
+  O --> SZ
+  DJ -- "웨이포인트 CSV" --> N["Nav2<br/>Goal 실행"]
+  N --> R["myAGV<br/>자율 주행"]
+
+  style PRM fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px

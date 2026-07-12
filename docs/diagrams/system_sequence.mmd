@@ -1,0 +1,18 @@
+sequenceDiagram
+  actor U as 사용자
+  participant L as Gemini (명령 해석)
+  participant E as ULIP (객체 매칭)
+  participant P as PRM 모듈 (이 저장소)
+  participant N as Nav2
+  participant R as myAGV
+
+  Note over P: 부팅 시 1회 — 로드맵 구축<br/>safe zone → 4000노드 → KDTree k=30
+
+  U->>L: "어항 앞으로 가줘"
+  L->>E: 대상 객체 텍스트
+  E->>P: 목표 3D 좌표 (x, y, z)
+  P->>P: 좌표 → 맵 픽셀, safe zone 검증
+  P->>P: Dijkstra 최단 경로 (로드맵 재사용, ~45ms)
+  P->>N: 웨이포인트 CSV → Goal Location
+  N->>R: 속도 명령 (costmap 로컬 회피)
+  R-->>U: 목표 지점 도착
